@@ -12,7 +12,13 @@ int main(void)
 {
   esp8266 esp(Print);
 
-  //esp.WIFI("=\"", "5G_Obluchatel", "\",\"", string("Kikimora11"), "\"");
-  esp.Parse("+CWLAP:(3,\"arin\",-70,\"18:31:bf:67:bd:cc\",12,23,0,4,4,7,1)\r\n");
+  esp.WIFI >> [&](int i1, std::string s1, int i2, std::string s2)
+  {
+    cout << "Name: " << s1 << "; MAC: " << s2 << endl;
+  };
+
+  esp.WIFI("=\"","5G_Obluchatel", "\",\"", string("Kikimora11"), "\"");
+  esp.Parse("+CWLAP:(3,\"ardghbdthtin\",-70,\"18:31:bf:67:bd:cc\",12,23,0,4,4,7,1)\r\n");
+
   return 0;
 }
