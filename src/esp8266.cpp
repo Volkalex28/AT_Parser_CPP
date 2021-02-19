@@ -1,11 +1,11 @@
 
 #include "esp8266.hpp"
 
-esp8266::esp8266(void (*write)(const char * buf, size_t size)) 
+esp8266::esp8266(printf_t && write) 
   : Parser("AT", write),
-    AT(this, "", "\n\r%s\n\r"),
-    WIFI(this, "+CWLAP", ":(%i,\"%s\",%i,\"%s\""),
-    Echo(this, "E", "%i")
+    AT(this, "\n\r", "\r%\n"),
+    CWLAP(this, "+CWLAP", ":(%,\"%\",%,\"%\""),
+    Echo(this, "E", "%")
 {
-
+  
 }

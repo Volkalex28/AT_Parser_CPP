@@ -2,75 +2,95 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <string>
-#include <vector>
+#include <etl/include/etl/string.h>
+#include <etl/include/etl/vector.h>
 #include <functional>
 
 #include "AT_Helper.hpp"
 
-#define RUN(FOO, PARAM) run{ (FOO(PARAM), 1)... }
+#define RUN(FOO, PARAM) run{ (FOO(PARAM), 1) ... }
 
+template<int ATsize>
 class Parser
 {
+  using command_t = etl::string<15>;
+  using format_t = etl::string<25>;
+  using param_t = etl::string<64>;
+  using param_list_t = etl::vector<param_t, 15>;
+
+protected:
+  using printf_t = std::function<void(const char *)>;
+
+public:
+  struct string_t;
+  
+private:
   class AT_base
   {
-    friend class Parser;
+    friend class Parser<ATsize>;
+       
   protected:
     uint16_t number;
 
-    std::string text;
-    std::string format;
-    size_t count = 0;
+    command_t text;
+    format_t format;
+    size_t count;
 
-    virtual void parse(std::vector<std::string>& params);
+    virtual void parse(param_list_t & params);
 
-    AT_base(Parser * parser, std::string text, std::string format);
+    AT_base(std::size_t count, Parser * parser, command_t && text, format_t && format);
   };
 
+  using command_list_t = etl::vector<AT_base *, ATsize>;
+  using prefix_t = etl::string<10>;
+  using parseline_t = etl::string<128>;
+
 protected:
-  template<class... Types>
+  template<class ... Types>
   class AT_Command : public AT_base
-  {    
-    Parser * parser;
-    struct run;
+  { 
+    using function_t = std::function<void(Types ...)>;
     
-    template<typename T>
-    void print(T param);
-    void print(const char * param);
-    void print(std::string param);
+    Parser * parser;
 
-    int fill(int, std::string val);
-    std::string fill(std::string param, std::string val);
-    const char * fill(const char * param, std::string val);
+    int fill(int *, param_t & val);
+    param_t & fill(param_t *, param_t & val);
+    const char * fill(const char **, param_t & val);
 
-    std::string buffer = "";
-    std::tuple<Types...> params;
-    std::function<void(Types...)> func;
+    function_t func;  
 
-    template<int ...S>
-    void parse(std::vector<std::string>& params, seq<S...>);
-    void parse(std::vector<std::string>& params) override;
+    template<std::size_t ...S>
+    void parse(param_list_t & params, seq<S ...>);
+    void parse(param_list_t & params) override;
 
   public:
-    AT_Command(Parser * parser, std::string text, std::string format,
-      std::function<void(Types...)> func = nullptr);
+    AT_Command(Parser * parser, command_t && text, format_t && format);
 
     template<class... Args>
-    void operator()(Args&&... param);
+    void operator()(Args && ... param);
 
-    void operator>>(std::function<void(Types...)> func);
+    void operator>>(function_t pFoo);
   };
 
 private:
-  std::vector<AT_base *> arrAT;
-  std::string prefix;
-  std::function<void(const char *, size_t)> Write;
+  command_list_t arrAT;
+  prefix_t prefix;
+  printf_t Write;
+
+  void print(int param);
+  void print(const char * str);
+  void print(param_t & str);
 
 protected:
-  Parser(std::string prefix, void (*write)(const char * buf, size_t size));
+  Parser(prefix_t && prefix, printf_t write);
 
 public:
-  void Parse(std::string);
+  void Parse(parseline_t && str);
+
+  friend class AT_base;
+  template<class ... Args>
+  friend class AT_Command;
 };
 
+#include "ParserCPP.hpp"
 #include "AT_Command.hpp"

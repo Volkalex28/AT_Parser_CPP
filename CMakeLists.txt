@@ -17,7 +17,7 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 set(SOURCE 
   ${SOURCE_DIR}/main.cpp
-  ${SOURCE_DIR}/Parser.cpp
+  # ${SOURCE_DIR}/Parser.cpp
   ${SOURCE_DIR}/esp8266.cpp
 )
 
