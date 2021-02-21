@@ -4,20 +4,10 @@
 #include <cstdlib>
 #include <etl/include/etl/string.h>
 #include <etl/include/etl/vector.h>
-#include <functional>
-
-#include "AT_Helper.hpp"
-
-#define RUN(FOO, PARAM) run{ (FOO(PARAM), 1) ... }
 
 template<int ATsize>
 class Parser
 {
-  using command_t = etl::string<15>;
-  using format_t = etl::string<25>;
-  using param_t = etl::string<64>;
-  using param_list_t = etl::vector<param_t, 15>;
-
 protected:
   using printf_t = std::function<void(const char *)>;
 
@@ -25,9 +15,13 @@ public:
   struct string_t;
   
 private:
+  using param_list_t = etl::vector<string_t, 15>;
+  using command_t = etl::string<15>;
+  using format_t = etl::string<25>;
+
   class AT_base
   {
-    friend class Parser<ATsize>;
+    friend class Parser;
        
   protected:
     uint16_t number;
@@ -36,38 +30,39 @@ private:
     format_t format;
     size_t count;
 
-    virtual void parse(param_list_t & params);
+    virtual void parse(param_list_t &&) const = 0;
 
-    AT_base(std::size_t count, Parser * parser, command_t && text, format_t && format);
+    AT_base(std::size_t && count, Parser * const parser, command_t && text,
+      format_t && format);
   };
 
   using command_list_t = etl::vector<AT_base *, ATsize>;
-  using prefix_t = etl::string<10>;
+  using prefix_t = etl::string<5>;
   using parseline_t = etl::string<128>;
 
 protected:
   template<class ... Types>
   class AT_Command : public AT_base
   { 
-    using function_t = std::function<void(Types ...)>;
+    using function_t = std::function<void (Types ...)>;
     
-    Parser * parser;
+    Parser * const parser;
+    function_t func; 
 
-    int fill(int *, param_t & val);
-    param_t & fill(param_t *, param_t & val);
-    const char * fill(const char **, param_t & val);
+    int convert(string_t && val, int *) const;
+    string_t convert(string_t && val, string_t *) const;
+    const char * convert(string_t && val, const char **) const;
 
-    function_t func;  
+    const format_t formating(format_t && format) const;
 
-    template<std::size_t ...S>
-    void parse(param_list_t & params, seq<S ...>);
-    void parse(param_list_t & params) override;
+    void parse(param_list_t && param) const override;
 
   public:
-    AT_Command(Parser * parser, command_t && text, format_t && format);
+    AT_Command(Parser * const parser, command_t && text,
+      format_t && format);
 
     template<class... Args>
-    void operator()(Args && ... param);
+    void operator()(Args && ... param) const;
 
     void operator>>(function_t pFoo);
   };
@@ -77,12 +72,16 @@ private:
   prefix_t prefix;
   printf_t Write;
 
-  void print(int param);
-  void print(const char * str);
-  void print(param_t & str);
+  void print(const int & param) const;
+  void print(const char * str) const;
+  void print(const string_t & str) const;
+  template<class First, class Second, class ... Args>
+  void print(First && first, Second && sec, Args && ... args) const;
+
+  const AT_base * const findAT(const parseline_t &);
 
 protected:
-  Parser(prefix_t && prefix, printf_t write);
+  Parser(prefix_t && prefix, const printf_t write);
 
 public:
   void Parse(parseline_t && str);

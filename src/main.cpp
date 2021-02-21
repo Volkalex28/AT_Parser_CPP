@@ -3,34 +3,16 @@
 
 using namespace std;
 
-template<typename ... Types>
-struct test
-{
-  
-};
+esp8266 esp([](const char * buf){ cout << buf; });
 
 int main(void)
 {
 
-  esp8266 esp([](const char * buf){ cout << buf; });
-
-  esp.CWLAP >> [&](int c, esp8266::string_t s1, int d, esp8266::string_t s2)
-  {
-    cout << "Name: " << s1 << "; MAC: " << s2 << " " << c << " " << d << endl;
-  };
-  esp.AT >> [&](esp8266::string_t str)
-  {
-    cout << "AT" << endl;
-  };
-  esp.Echo >> [&](int val)
-  {
-    cout << val << endl;
-  };
-
-  esp.CWLAP("=\"","5G_Obluchatel", "\",\"", "Kikimora11", "\"");
+  esp.CWLAP("=\"","5G_Obluchatel", "\",\"", "Kikimora11", "\"", 5);
+  esp.AT();
   esp.Parse("+CWLAP:(3,\"arin\",-70,\"18:31:bf:67:bd:cc\",12,23,0,4,4,7,1)");
-  esp.Parse("E20515");
-
-  return 0;
+  esp.Parse("ATE20515");
+  esp.Parse("WIFI_CONNECTED");
+  esp.Parse("");
 
 }
