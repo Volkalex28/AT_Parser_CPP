@@ -119,7 +119,7 @@ template<int ATsize>
   template<class First, class Second, class ... Args>
 void Parser<ATsize>::print(First && first, Second && sec, Args && ... args) const
 {
-  if(this->Write == nullptr)
+  if(this->Write.mInvoker == nullptr)
   {
     return;
   }

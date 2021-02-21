@@ -4,12 +4,13 @@
 #include <cstdlib>
 #include <etl/include/etl/string.h>
 #include <etl/include/etl/vector.h>
+#include "function.hpp"
 
 template<int ATsize>
 class Parser
 {
 protected:
-  using printf_t = std::function<void(const char *)>;
+  using printf_t = function<void(const char *)>;
 
 public:
   struct string_t;
@@ -44,7 +45,7 @@ protected:
   template<class ... Types>
   class AT_Command : public AT_base
   { 
-    using function_t = std::function<void (Types ...)>;
+    using function_t = function<void (Types ...)>;
     
     Parser * const parser;
     function_t func; 

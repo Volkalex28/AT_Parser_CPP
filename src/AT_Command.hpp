@@ -79,7 +79,7 @@ template<int ATsize>
   template<class ... Types>
 void Parser<ATsize>::AT_Command<Types ...>::operator>>(function_t pFoo)
 {
-  assert(pFoo);
+  assert(pFoo.mInvoker);
 
   this->func = pFoo;
 }
