@@ -1,25 +1,30 @@
 
 #include "esp8266.hpp"
 
-esp8266::esp8266(void (*write)(const char * buf, size_t size)) 
+esp8266::esp8266(printf_t write) 
   : Parser("AT", write),
-    AT(this, "", "\n\r%s\n\r"),
-    WIFI(this, "+CWLAP", ":(%i,\"%s\",%i,\"%s\",%i,%i,%i,%i,%i,%i,%i)"),
-    Echo(this, "E", "%i")
+    AT(this, "", ""),
+    CWLAP(this, "+CWLAP", "#:(%,\"%\",%,\"%\""),
+    Echo(this, "E", "AT#%"),
+    Test(this, "", "WIFI_CONNECTED")
 {
-  this->AT.foo = [&](std::string p)
+  using namespace std;
+
+  this->CWLAP >> [&](int c, string_t s1, int d, string_t s2)
   {
-
+    cout << "Name: " << s1 << "; MAC: " << s2 << " " << c << " " << d << endl;
   };
-
-  this->WIFI.foo = [&](int, std::string, int, std::string, int, int, int,
-  int, int, int, int)
+  this->AT >> []()
   {
-
+    cout << "AT" << endl;
   };
-
-  this->Echo.foo = [&](int)
+  this->Echo >> [](int val)
   {
-
+    cout << val << endl;
   };
+  this->Test >> []()
+  {
+    cout << "))))" << endl;
+  };
+  
 }

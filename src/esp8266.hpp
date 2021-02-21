@@ -2,14 +2,14 @@
 
 #include "Parser.hpp"
 
-class esp8266 : public Parser
+class esp8266 : public Parser<4>
 {
 public:
-  AT_Command<std::string> AT;
-  AT_Command<int, std::string, int, std::string, int, int, int, int, int,
-    int, int> WIFI;
+  AT_Command<> AT;
+  AT_Command<int, esp8266::string_t, int, esp8266::string_t> CWLAP;
   AT_Command<int> Echo;
+  AT_Command<> Test;
 
-  esp8266(void (*write)(const char * buf, size_t size));
+  esp8266(printf_t write);
 };
 

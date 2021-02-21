@@ -2,142 +2,94 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <string>
-#include <vector>
-#include <functional>
+#include <etl/include/etl/string.h>
+#include <etl/include/etl/vector.h>
 
+template<int ATsize>
 class Parser
 {
-  class AT_base;
+protected:
+  using printf_t = std::function<void(const char *)>;
+
+public:
+  struct string_t;
+  
+private:
+  using param_list_t = etl::vector<string_t, 15>;
+  using command_t = etl::string<15>;
+  using format_t = etl::string<25>;
+
+  class AT_base
+  {
+    friend class Parser;
+       
+  protected:
+    uint16_t number;
+
+    command_t text;
+    format_t format;
+    size_t count;
+
+    virtual void parse(param_list_t &&) const = 0;
+
+    AT_base(std::size_t && count, Parser * const parser, command_t && text,
+      format_t && format);
+  };
+
+  using command_list_t = etl::vector<AT_base *, ATsize>;
+  using prefix_t = etl::string<5>;
+  using parseline_t = etl::string<128>;
 
 protected:
-  template<class... Types>
-  class AT_Command;
+  template<class ... Types>
+  class AT_Command : public AT_base
+  { 
+    using function_t = std::function<void (Types ...)>;
+    
+    Parser * const parser;
+    function_t func; 
+
+    int convert(string_t && val, int *) const;
+    string_t convert(string_t && val, string_t *) const;
+    const char * convert(string_t && val, const char **) const;
+
+    const format_t formating(format_t && format) const;
+
+    void parse(param_list_t && param) const override;
+
+  public:
+    AT_Command(Parser * const parser, command_t && text,
+      format_t && format);
+
+    template<class... Args>
+    void operator()(Args && ... param) const;
+
+    void operator>>(function_t pFoo);
+  };
 
 private:
-  std::vector<AT_base *> arrAT;
-  std::string prefix;
-  void (*Write)(const char * buf, size_t size);
+  command_list_t arrAT;
+  prefix_t prefix;
+  printf_t Write;
+
+  void print(const int & param) const;
+  void print(const char * str) const;
+  void print(const string_t & str) const;
+  template<class First, class Second, class ... Args>
+  void print(First && first, Second && sec, Args && ... args) const;
+
+  const AT_base * const findAT(const parseline_t &);
 
 protected:
-  Parser(std::string prefix, void (*write)(const char * buf, size_t size));
+  Parser(prefix_t && prefix, const printf_t write);
 
 public:
-  void Parse(std::string);
+  void Parse(parseline_t && str);
+
+  friend class AT_base;
+  template<class ... Args>
+  friend class AT_Command;
 };
 
-class Parser::AT_base
-{
-  friend class Parser;
-protected:
-  uint16_t number;
-
-  std::string text;
-  std::string format;
-  size_t count = 0;
-
-  virtual void parse(std::vector<std::string>& params);
-
-  AT_base(Parser * parser, std::string text, std::string format);
-};
-
-template<class... Types>
-class Parser::AT_Command : public AT_base
-{    
-  Parser * parser;
-  struct run;
-  
-  template<typename T>
-  void print(T param);
-  void print(const char * param);
-  void print(std::string param);
-
-  std::string buffer = "";
-
-public:
-  std::function<void(Types...)> foo;
-  void parse(std::vector<std::string>& params) override;
-
-  AT_Command(Parser * parser, std::string text, std::string format);
-
-  template<class... Args>
-  void operator()(Args&&... param);
-
-  #define RUN(FOO, PARAM) run{ (FOO(PARAM), 1)... }
-};
-
-template<class... Types>
-struct Parser::AT_Command<Types...>::run
-{
-  template<class... Args> 
-  run(Args&&...)
-  {  
-
-  }
-};
-
-// -------------------------------------------------------------------------
-template<class... Types>
-Parser::AT_Command<Types...>::AT_Command(Parser * parser, std::string text, 
-  std::string format)
-  : AT_base(parser, text, format), parser(parser)
-{
-  size_t count = 0;
-  for(auto& sym : this->format)
-  {
-    if(sym == '%')
-    {
-      count++;
-    }
-  }
-
-  this->count = count;
-}
-
-template<class... Types> 
-template<typename T>
-void Parser::AT_Command<Types...>::print(T param)
-{
-  std::string str(std::to_string(param));
-  this->parser->Write(str.c_str(), str.length());
-  this->buffer += str;
-}
-
-template<class... Types>
-void Parser::AT_Command<Types...>::print(const char * str)
-{
-  this->print(std::string(str));
-}
-
-template<class... Types>
-void Parser::AT_Command<Types...>::print(std::string str)
-{
-  this->parser->Write(str.c_str(), str.length());
-  this->buffer += str;
-}
-
-template<class... Types> 
-template<class... Args>
-void Parser::AT_Command<Types...>::operator()(Args&&... params)
-{
-  this->buffer.clear();
-  this->print(this->parser->prefix.c_str());
-  this->print(this->text.c_str());
-  RUN(this->print, params);
-  this->print("\n\r");
-}
-
-template<class... Types> 
-void Parser::AT_Command<Types...>::parse(std::vector<std::string>& params)
-{
-  for(auto& p : params)
-  {
-    std::cout << p << std::endl;
-  }
-  /*
-    Код вызова foo
-    Думаю через рекурсию с пакетом шаблонов сделать
-    а в конце, когда счетчик рекурсии досчитает до count,
-    вызвать foo распаковав набравшийся пакет
-  */
-}
+#include "ParserCPP.hpp"
+#include "AT_Command.hpp"
