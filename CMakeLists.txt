@@ -15,18 +15,11 @@ set(EXECUTABLE_OUTPUT_PATH  ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE})
 
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-set(SOURCE 
-  ${SOURCE_DIR}/main.cpp
-  # ${SOURCE_DIR}/Parser.cpp
-  ${SOURCE_DIR}/esp8266.cpp
-)
-
-add_executable(${PROJECT_NAME} ${SOURCE})
-
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   $<$<CONFIG:Debug>: -DDEBUG>
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   ${SOURCE_DIR}
+  ${SOURCE_DIR}/etl/include
 )

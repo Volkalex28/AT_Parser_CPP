@@ -1,3 +1,14 @@
+/**
+ * @file function.hpp
+ * @author Oleksandr Ananiev (alexander.ananiev@sigma.sofware)
+ * @brief 
+ * @version 0.1
+ * @date 2021-02-21
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #pragma once
 
 #include <memory>
@@ -44,4 +55,4 @@ public:
   function & operator = (const function & other);
 };
 
-#include "functionCPP.hpp"
+#include "function.ipp"
