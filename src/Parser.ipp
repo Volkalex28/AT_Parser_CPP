@@ -1,3 +1,10 @@
+/**
+ * @file Parser.ipp
+ * @author Oleksandr Ananiev (alexander.ananiev@sigma.sofware)
+ * @brief 
+ * 
+ */
+
 #pragma once
 
 template<int ATsize>
@@ -8,35 +15,36 @@ Parser<ATsize>::AT_base::AT_base(std::size_t && count, Parser * const parser,
   parser->arrAT.push_back(this);
 }
 
+template<int ATsize>
+Parser<ATsize>::AT_base::~AT_base(void)
+{
+  // There's nothing here
+}
+
 // ============================================================================
 
 template<int ATsize>
 struct Parser<ATsize>::string_t : public etl::string<64>
 {
-  friend std::ostream& operator<<(std::ostream & out, const string_t & str)
-  {
-    return out << str.c_str();
-  }
-
   template<class ... Args>
   string_t(Args && ... params) : string<string_t::MAX_SIZE>(std::move(params ...))
   {
-    
+    // There's nothing here
   }
 
   string_t(void) : string<string_t::MAX_SIZE>()
   {
-
+    // There's nothing here
   }
 };
 
 // ============================================================================
 
 template<int ATsize>
-Parser<ATsize>::Parser(Parser::prefix_t && prefix, const printf_t write)
-  : Write(write), prefix(prefix)
-{
-  
+Parser<ATsize>::Parser(Parser::prefix_t && prefix, const printf_t & write)
+  : prefix(std::move(prefix)), Write(std::move(write))
+{ 
+  // There's nothing here
 }
 
 template<int ATsize>
@@ -52,8 +60,6 @@ const typename Parser<ATsize>::AT_base * const
     }
 
     const int pos(at->format.find('%'));
-
-    //pos = (pos == -1 && at->text.length() != 0) ? str.length() : pos;
     
     if(str.compare(0, pos, at->format.substr(0, pos)) == 0)
     {
@@ -95,34 +101,51 @@ void Parser<ATsize>::Parse(parseline_t && str)
   
 }
 
-template<int ATsize>
-void Parser<ATsize>::print(const int & param) const
+template<int ATsize> 
+typename Parser<ATsize>::string_t 
+  Parser<ATsize>::convert(string_t && val, string_t *) const
 {
-  char str[string_t::MAX_SIZE] = {0};
-  snprintf(str, string_t::MAX_SIZE, "%i", param);
-  this->print(str);
+  return val;
 }
 
-template<int ATsize>
-void Parser<ATsize>::print(const char * str) const
+template<int ATsize> 
+int Parser<ATsize>::convert(string_t && val, int *) const
 {
-  this->Write(str);
+  return atoi(val.c_str());
 }
 
-template<int ATsize>
-void Parser<ATsize>::print(const string_t & str) const
+template<int ATsize> 
+const char * Parser<ATsize>::convert(string_t && val, const char **) const
 {
-  this->Write(str.c_str());
+  return val.c_str();
 }
 
 template<int ATsize>
   template<class First, class Second, class ... Args>
 void Parser<ATsize>::print(First && first, Second && sec, Args && ... args) const
 {
-  if(this->Write == nullptr)
-  {
-    return;
-  }
   this->print(std::move(first));
-  this->print(sec, args...);
+  this->print(std::move(sec), std::move(args)...);
+}
+
+template<int ATsize>
+void Parser<ATsize>::print(const char * val) const
+{
+  this->Write(val);
+}
+
+template<int ATsize>
+void Parser<ATsize>::print(const string_t & val) const
+{
+  this->Write(val.c_str());
+}
+
+template<int ATsize>
+void Parser<ATsize>::print(const int & val) const
+{
+  char temp[string_t::MAX_SIZE];
+  
+  snprintf(temp, string_t::MAX_SIZE, "%i", val);
+
+  this->Write(temp);
 }
