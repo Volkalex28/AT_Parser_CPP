@@ -17,8 +17,8 @@
 #pragma once
 
 #include <cstdlib>
-#include <etl/string.h>
-#include <etl/vector.h>
+#include "./etl/include/etl/string.h"
+#include "./etl/include/etl/vector.h"
 #include "function.hpp"
 
 /**
