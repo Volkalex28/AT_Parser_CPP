@@ -8,8 +8,8 @@
 #pragma once
 
 template<int ATsize>
-Parser<ATsize>::AT_base::AT_base(std::size_t && count, Parser * const parser,
-  command_t && text, format_t && format)
+Parser<ATsize>::AT_base::AT_base(const std::size_t count, Parser * const parser,
+  const char * text, const char * format)
   : number(parser->arrAT.size()), text(text), format(format), count(count)
 {
   parser->arrAT.push_back(this);
@@ -24,32 +24,15 @@ Parser<ATsize>::AT_base::~AT_base(void)
 // ============================================================================
 
 template<int ATsize>
-struct Parser<ATsize>::string_t : public etl::string<64>
-{
-  template<class ... Args>
-  string_t(Args && ... params) : string<string_t::MAX_SIZE>(std::move(params ...))
-  {
-    // There's nothing here
-  }
-
-  string_t(void) : string<string_t::MAX_SIZE>()
-  {
-    // There's nothing here
-  }
-};
-
-// ============================================================================
-
-template<int ATsize>
-Parser<ATsize>::Parser(Parser::prefix_t && prefix, const printf_t & write)
-  : prefix(std::move(prefix)), Write(std::move(write))
+Parser<ATsize>::Parser(const char * prefix, const printf_t & write)
+  : prefix(prefix), Write(std::move(write))
 { 
   // There's nothing here
 }
 
 template<int ATsize>
 const typename Parser<ATsize>::AT_base * const 
-  Parser<ATsize>::findAT(const parseline_t & str)
+  Parser<ATsize>::findAT(const parseline_t & str) const
 {
   const AT_base * pAT = nullptr;
   for(auto && at : this->arrAT)
@@ -61,7 +44,7 @@ const typename Parser<ATsize>::AT_base * const
 
     const int pos(at->format.find('%'));
     
-    if(str.compare(0, pos, at->format.substr(0, pos)) == 0)
+    if(str.compare(0, pos, at->format.substr(0, pos).c_str()) == 0)
     {
       pAT = at;
     }
@@ -70,9 +53,9 @@ const typename Parser<ATsize>::AT_base * const
 }
 
 template<int ATsize>
-void Parser<ATsize>::Parse(parseline_t && str)
+void Parser<ATsize>::Parse(const parseline_t & str)
 {
-  const AT_base * const pAT = this->findAT(str);
+  const AT_base * const pAT = this->findAT(std::move(str));
   if(pAT == nullptr)
   {
     return;
@@ -97,32 +80,33 @@ void Parser<ATsize>::Parse(parseline_t && str)
   {
     out[i] = "0";
   }
-  pAT->parse(std::move(out));
+  pAT->parse(out);
   
 }
 
 template<int ATsize> 
-typename Parser<ATsize>::string_t 
-  Parser<ATsize>::convert(string_t && val, string_t *) const
+const typename Parser<ATsize>::string_t &
+  Parser<ATsize>::convert(const string_t & val, string_t *) const
 {
-  return val;
+  return std::move(val);
 }
 
 template<int ATsize> 
-int Parser<ATsize>::convert(string_t && val, int *) const
+const int Parser<ATsize>::convert(const string_t & val, int *) const
 {
   return atoi(val.c_str());
 }
 
 template<int ATsize> 
-const char * Parser<ATsize>::convert(string_t && val, const char **) const
+const char * Parser<ATsize>::convert(const string_t & val, const char **) const
 {
   return val.c_str();
 }
 
 template<int ATsize>
   template<class First, class Second, class ... Args>
-void Parser<ATsize>::print(First && first, Second && sec, Args && ... args) const
+void Parser<ATsize>::print(const First & first, const Second & sec,
+  const Args & ... args) const
 {
   this->print(std::move(first));
   this->print(std::move(sec), std::move(args)...);

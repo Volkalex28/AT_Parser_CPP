@@ -17,8 +17,8 @@
 #pragma once
 
 #include <cstdlib>
-#include <etl/string.h>
-#include <etl/vector.h>
+#include "./etl/include/etl/string.h"
+#include "./etl/include/etl/vector.h"
 #include "function.hpp"
 
 /**
@@ -45,7 +45,8 @@ public:
    * @brief Data type that is used for strings and string parameters
    * inside the parser
    */
-  struct string_t;
+  using string_t = etl::string<24>;;
+  using parseline_t = etl::string<85>;
   
 private:
   /**
@@ -66,16 +67,15 @@ private:
     format_t format;
     size_t count;
 
-    virtual void parse(param_list_t &&) const = 0;
+    virtual void parse(const param_list_t &) const = 0;
 
-    AT_base(std::size_t && count, Parser * const parser, command_t && text,
-      format_t && format);
+    AT_base(const std::size_t count, Parser * const parser, const char * text,
+      const char * format);
     virtual ~AT_base(void);
   };
 
   using command_list_t = etl::vector<AT_base *, ATsize>;
   using prefix_t = etl::string<5>;
-  using parseline_t = etl::string<85>;
 
 protected:
   template<class ... Types>
@@ -86,19 +86,18 @@ protected:
     Parser * const parser;
     function_t func; 
 
-    const format_t formating(format_t && format) const;
+    const format_t formating(const format_t & format) const;
 
-    void parse(param_list_t && param) const override;
+    void parse(const param_list_t & param) const override;
 
   public:
-    AT_Command(Parser * const parser, command_t && text,
-      format_t && format);
+    AT_Command(Parser * const parser, const char * text, format_t format);
     ~AT_Command(void) override;
 
     template<class... Args>
-    void operator()(Args && ... param) const;
+    void operator()(const Args & ... param) const;
 
-    void operator>>(function_t pFoo);
+    void operator>>(const function_t & pFoo);
   };
 
 private:
@@ -106,23 +105,23 @@ private:
   prefix_t prefix;
   printf_t Write;
 
-  int convert(string_t && val, int *) const;
-  string_t convert(string_t && val, string_t *) const;
-  const char * convert(string_t && val, const char **) const;
+  const int convert(const string_t & val, int *) const;
+  const string_t & convert(const string_t & val, string_t *) const;
+  const char * convert(const string_t & val, const char **) const;
 
   void print(const char * val) const;
   void print(const string_t & val) const;
   void print(const int & val) const;
   template<class First, class Second, class ... Args>
-  void print(First && first, Second && sec, Args && ... args) const;
+  void print(const First & first, const Second & sec, const Args & ... args) const;
 
-  const AT_base * const findAT(const parseline_t &);
+  const AT_base * const findAT(const parseline_t &) const;
 
 protected:
-  Parser(prefix_t && prefix, const printf_t & write);
+  Parser(const char * prefix, const printf_t & write);
 
 public:
-  void Parse(parseline_t && str);
+  void Parse(const parseline_t & str);
 };
 
 #include "Parser_AT.ipp"
