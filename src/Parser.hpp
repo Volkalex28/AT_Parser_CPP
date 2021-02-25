@@ -45,8 +45,7 @@ public:
    * @brief Data type that is used for strings and string parameters
    * inside the parser
    */
-  using string_t = etl::string<24>;;
-  using parseline_t = etl::string<85>;
+  using string_t = etl::string<60>;
   
 private:
   /**
@@ -115,13 +114,13 @@ private:
   template<class First, class Second, class ... Args>
   void print(const First & first, const Second & sec, const Args & ... args) const;
 
-  const AT_base * const findAT(const parseline_t &) const;
+  const AT_base * const findAT(const char * const) const;
 
 protected:
   Parser(const char * prefix, const printf_t & write);
 
 public:
-  void Parse(const parseline_t & str);
+  void Parse(const char * str);
 };
 
 #include "Parser_AT.ipp"
