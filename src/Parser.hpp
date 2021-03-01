@@ -21,6 +21,10 @@
 #include "./etl/include/etl/vector.h"
 #include "function.hpp"
 
+#ifndef CPPUTEST
+  #define CPPUTEST
+#endif
+
 /**
  * @ingroup AT_Parser
  * @brief Universal parser of AT commands
@@ -34,6 +38,7 @@
 template<int ATsize>
 class Parser
 {
+  CPPUTEST;
 protected:
   /**
    * @brief A data type that describes the function of sending data from the parser 
@@ -74,7 +79,7 @@ private:
   };
 
   using command_list_t = etl::vector<AT_base *, ATsize>;
-  using prefix_t = etl::string<5>;
+  using prefix_t = etl::string<10>;
 
 protected:
   template<class ... Types>

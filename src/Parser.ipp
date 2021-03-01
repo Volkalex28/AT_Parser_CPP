@@ -35,7 +35,7 @@ const typename Parser<ATsize>::AT_base * const
   Parser<ATsize>::findAT(const char * const str) const
 {
   const AT_base * pAT = nullptr;
-  for(auto && at : this->arrAT)
+  for(auto & at : this->arrAT)
   {
     if(at->format.length() == 0)
     {
@@ -43,6 +43,8 @@ const typename Parser<ATsize>::AT_base * const
     }
 
     const int pos(at->format.find('%'));
+
+
     
     if(strncmp(str, at->format.substr(0, pos).c_str(), pos) == 0)
     {

@@ -13,6 +13,10 @@
 
 #include <memory>
 
+#ifndef ASSERT
+  #define ASSERT(exp) assert(exp)
+#endif
+
 template <typename Unused>
 class function;
 
