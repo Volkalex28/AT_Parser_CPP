@@ -32,10 +32,10 @@ Parser<ATsize>::Parser(const char * prefix, const printf_t & write)
 
 template<int ATsize>
 const typename Parser<ATsize>::AT_base * const 
-  Parser<ATsize>::findAT(const parseline_t & str) const
+  Parser<ATsize>::findAT(const char * const str) const
 {
   const AT_base * pAT = nullptr;
-  for(auto && at : this->arrAT)
+  for(auto & at : this->arrAT)
   {
     if(at->format.length() == 0)
     {
@@ -43,8 +43,10 @@ const typename Parser<ATsize>::AT_base * const
     }
 
     const int pos(at->format.find('%'));
+
+
     
-    if(str.compare(0, pos, at->format.substr(0, pos).c_str()) == 0)
+    if(strncmp(str, at->format.substr(0, pos).c_str(), pos) == 0)
     {
       pAT = at;
     }
@@ -53,9 +55,9 @@ const typename Parser<ATsize>::AT_base * const
 }
 
 template<int ATsize>
-void Parser<ATsize>::Parse(const parseline_t & str)
+void Parser<ATsize>::Parse(const char * str)
 {
-  const AT_base * const pAT = this->findAT(std::move(str));
+  const AT_base * const pAT = this->findAT(str);
   if(pAT == nullptr)
   {
     return;

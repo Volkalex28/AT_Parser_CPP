@@ -58,6 +58,8 @@ function<Return (Args ...)>::function(const function & other)
 template<class Return, class ... Args>
 Return function<Return (Args ...)>::operator()(Args ... args) const
 {
+  ASSERT((bool)this->mInvoker);
+
   return this->mInvoker->call(args ...);
 }
 
