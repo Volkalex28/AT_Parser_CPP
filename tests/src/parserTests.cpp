@@ -82,7 +82,7 @@ TEST(ParserAT, testingPrivatePrintFunctionParser)
   CHECK_EQUAL(0, test.compare("Hello World from multiply"));
 
   test.print("Hello", string_t(" "), "World", string_t(" from multiply"), " ", 1, 2.9);
-  CHECK_EQUAL(0, test.compare("Hello World from multiply 12"));
+  CHECK_EQUAL(0, test.compare("Hello World from multiply 12.900"));
 }
 
 TEST(ParserAT, testingPrivateFindCommands)

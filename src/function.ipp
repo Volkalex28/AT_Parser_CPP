@@ -1,12 +1,9 @@
 /**
  * @file function.ipp
  * @author Oleksandr Ananiev (alexander.ananiev@sigma.sofware)
- * @brief 
- * @version 0.1
- * @date 2021-02-21
+ * @brief Function class source file
  * 
- * @copyright Copyright (c) 2021
- * 
+ * The class stores a pointer to the called object by "type erasure"
  */
 
 #pragma once

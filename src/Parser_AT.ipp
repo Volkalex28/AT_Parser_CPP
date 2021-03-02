@@ -1,7 +1,7 @@
 /**
  * @file AT_Command.ipp
  * @author Oleksandr Ananiev (alexander.ananiev@sigma.sofware)
- * @brief 
+ * @brief Source Code File for AT Command Class
  * 
  */
 
@@ -12,7 +12,7 @@
 template<int ATsize> 
   template<class ... Types>
 Parser<ATsize>::AT_Command<Types ...>::AT_Command(Parser * const parser,
-  const char * text, format_t format)
+  const char * text, const format_t format)
   : AT_base(sizeof...(Types), parser, std::move(text), ""), 
     parser(parser), func([](Types ...){ })
 {
@@ -65,7 +65,8 @@ template<int ATsize>
     template<class ... Args>
 void Parser<ATsize>::AT_Command<Types ...>::operator()(const Args & ... params) const
 {
-  this->parser->print(this->parser->prefix, this->text, params ..., "\n\r");
+  this->parser->print(this->parser->prefix.c_str(), this->text.c_str(), 
+    params ..., "\n\r");
 }
 
 template<int ATsize> 

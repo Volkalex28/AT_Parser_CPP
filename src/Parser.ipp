@@ -1,7 +1,7 @@
 /**
  * @file Parser.ipp
  * @author Oleksandr Ananiev (alexander.ananiev@sigma.sofware)
- * @brief 
+ * @brief Source file that describes the template class for the AT Command Parser
  * 
  */
 
@@ -10,7 +10,7 @@
 template<int ATsize>
 Parser<ATsize>::AT_base::AT_base(const std::size_t count, Parser * const parser,
   const char * text, const char * format)
-  : number(parser->arrAT.size()), text(text), format(format), count(count)
+  : text(text), format(format), count(count)
 {
   parser->arrAT.push_back(this);
 }
@@ -44,8 +44,6 @@ const typename Parser<ATsize>::AT_base * const
 
     const int pos(at->format.find('%'));
 
-
-    
     if(strncmp(str, at->format.substr(0, pos).c_str(), pos) == 0)
     {
       pAT = at;
@@ -115,6 +113,15 @@ void Parser<ATsize>::print(const First & first, const Second & sec,
 }
 
 template<int ATsize>
+  template<class T>
+void Parser<ATsize>::print(const T & param) const
+{
+  string_t text = "";
+  etl::to_string(param, text, etl::format_spec().precision(3));
+  this->Write(text.c_str());
+}
+
+template<int ATsize>
 void Parser<ATsize>::print(const char * val) const
 {
   this->Write(val);
@@ -124,14 +131,4 @@ template<int ATsize>
 void Parser<ATsize>::print(const string_t & val) const
 {
   this->Write(val.c_str());
-}
-
-template<int ATsize>
-void Parser<ATsize>::print(const int & val) const
-{
-  char temp[string_t::MAX_SIZE];
-  
-  snprintf(temp, string_t::MAX_SIZE, "%i", val);
-
-  this->Write(temp);
 }
